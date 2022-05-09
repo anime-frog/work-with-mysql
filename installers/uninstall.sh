@@ -6,11 +6,12 @@ if [ "$1" = "-a" ]
 then
 sudo apt-get purge mysql-server mysql-common mysql-client
 sudo apt-get purge g++
+sudo apt-get purge git
 fi
 
 if [[ "$1" = "-t" || "$2" = "-t" ]]
 then
-rm -rf `pwd`
+rm -rf "../../work-with-mysql"
 else
 if [ -e "$1" ]
 then

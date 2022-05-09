@@ -9,4 +9,5 @@ sudo apt-get install git
 if [ "$1" = "-c" ]
 then
 git clone "https://github.com/anime-frog/work-with-mysql"
+rm -rf "$0"
 fi
