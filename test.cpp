@@ -3,7 +3,7 @@
 #include <vector>
 #include <list>
 #include <map>
-#include "data/work_with_db.hpp"
+#include "work_with_db.hpp"
 
 int main()
 {
