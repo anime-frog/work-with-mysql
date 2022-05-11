@@ -1,2 +1,3 @@
-configs
-test
+/configs
+/test
+library/.vscode
