@@ -15,6 +15,11 @@ protected:
     MYSQL_ROW row;
     MYSQL_FIELD *field = nullptr;
 
+    std::string lastData = "";
+
+    void getDataReq(std::string table, std::string fields = "*", std::string specialKeys = "");
+    void getDataReq(const char *table, const char *fields = "*", const char *specialKeys = "");
+
 public:
     Data();
     Data(std::string host, std::string username, std::string password, std::string dataname, int port = 8000, const char *usocks = NULL, unsigned long int flags = 0);
@@ -35,6 +40,17 @@ public:
 
     template <class T>
     void insertValues(const char *table, const char *field, T values);
+
+    void deleteValues(std::string table);
+    void deleteValues(const char *table);
+    void deleteValues(std::string table, std::string field, std::string value);
+    void deleteValues(const char *table, const char *field, const char *value);
+
+    template <class T>
+    void deleteValues(std::string table, std::string field, T values);
+
+    template <class T>
+    void deleteValues(const char *table, const char *field, T values);
 
     std::string getData(std::string table, std::string fields = "*", std::string specialKeys = "");
     const char *getData(const char *table, const char *fields = "*", const char *specialKeys = "");
@@ -149,7 +165,6 @@ void Data::insertValues(std::string table, std::string field, T values)
 
     for (auto v = std::begin(values); v != std::end(values); v++)
     {
-
         stream << "INSERT INTO " << table << "(" << field << ") VALUES (\"" << *v << "\")";
 
         if (mysql_query(&mysql, stream.str().c_str()))
@@ -162,18 +177,92 @@ void Data::insertValues(std::string table, std::string field, T values)
 template <class T>
 void Data::insertValues(const char *table, const char *field, T values)
 {
+    std::stringstream stream;
+
     for (auto v = std::begin(values); v != std::end(values); v++)
     {
-        std::stringstream stream;
-
         stream << "INSERT INTO " << table << "(" << field << ") VALUES (\"" << *v << "\")";
 
         if (mysql_query(&mysql, stream.str().c_str()))
             throw std::invalid_argument(mysql_error(&mysql));
+
+        stream.str("");
     }
 }
 
-std::string Data::getData(std::string table, std::string fields, std::string specialKeys)
+void Data::deleteValues(std::string table)
+{
+    std::stringstream stream;
+
+    stream << "DELETE FROM " << table;
+
+    if (mysql_query(&mysql, stream.str().c_str()))
+        throw std::invalid_argument(mysql_error(&mysql));
+}
+
+void Data::deleteValues(const char *table)
+{
+    std::stringstream stream;
+
+    stream << "DELETE FROM " << table;
+
+    if (mysql_query(&mysql, stream.str().c_str()))
+        throw std::invalid_argument(mysql_error(&mysql));
+}
+
+void Data::deleteValues(std::string table, std::string field, std::string value)
+{
+    std::stringstream stream;
+
+    stream << "DELETE FROM " << table << " WHERE " << field << " = \"" << value << "\"";
+
+    if (mysql_query(&mysql, stream.str().c_str()))
+        throw std::invalid_argument(mysql_error(&mysql));
+}
+
+void Data::deleteValues(const char *table, const char *field, const char *value)
+{
+    std::stringstream stream;
+
+    stream << "DELETE FROM " << table << " WHERE " << field << " = \"" << value << "\"";
+
+    if (mysql_query(&mysql, stream.str().c_str()))
+        throw std::invalid_argument(mysql_error(&mysql));
+}
+
+template <class T>
+void Data::deleteValues(std::string table, std::string field, T values)
+{
+    std::stringstream stream;
+
+    for (auto v = std::begin(values); v != std::end(values); v++)
+    {
+        stream << "DELETE FROM " << table << " WHERE " << field << " = \"" << v << "\"";
+
+        if (mysql_query(&mysql, stream.str().c_str()))
+            throw std::invalid_argument(mysql_error(&mysql));
+
+        stream.str("");
+    }
+}
+
+template <class T>
+void Data::deleteValues(const char *table, const char *field, T values)
+{
+    std::stringstream stream;
+
+    for (auto v = std::begin(values); v != std::end(values); v++)
+    {
+        stream << "DELETE FROM " << table << " WHERE " << field << " = \"" << v << "\"";
+
+        if (mysql_query(&mysql, stream.str().c_str()))
+            throw std::invalid_argument(mysql_error(&mysql));
+
+        stream.str("");
+    }
+}
+
+void Data::getDataReq(std::string table, std::string fields, std::string specialKeys)
 {
     std::stringstream stream;
 
@@ -202,10 +291,10 @@ std::string Data::getData(std::string table, std::string fields, std::string spe
 
     res = nullptr;
 
-    return stream.str();
+    lastData = stream.str();
 }
 
-const char *Data::getData(const char *table, const char *fields, const char *specialKeys)
+void Data::getDataReq(const char *table, const char *fields, const char *specialKeys)
 {
     std::stringstream stream;
 
@@ -234,7 +323,21 @@ const char *Data::getData(const char *table, const char *fields, const char *spe
 
     res = nullptr;
 
-    return stream.str().c_str();
+    lastData = stream.str();
+}
+
+std::string Data::getData(std::string table, std::string fields, std::string specialKeys)
+{
+    getDataReq(table, fields, specialKeys);
+
+    return lastData;
+}
+
+const char *Data::getData(const char *table, const char *fields, const char *specialKeys)
+{
+    getDataReq(table, fields, specialKeys);
+
+    return lastData.c_str();
 }
 
 template<class T1, class T2>
