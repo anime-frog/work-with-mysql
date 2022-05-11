@@ -1,4 +1,3 @@
-/configs
-/test
-/library
-  /.vscode
+configs
+test
+library/.vscode
