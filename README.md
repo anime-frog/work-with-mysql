@@ -10,4 +10,4 @@ You must start uninstall.sh to delete it.
 If you want to delete library with g++, MySQL and Git, you must start uninstaller with flag '-a'
 ***
 # what it do
-This library can create/drop tables, insert values and select they
+This library can create/drop tables, insert/delete/update values and select they, drop/update/add columns
